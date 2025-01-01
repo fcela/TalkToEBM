@@ -12,6 +12,41 @@ import os
 
 from typing import Union
 
+from ollama import Client
+from t2ebm.llm import AbstractChatModel
+
+
+class OllamaChatModel(AbstractChatModel):
+    client: Client = None
+    model: str = None
+
+    def __init__(self, client=None, model="llama3.2"):
+        super().__init__()
+        if client is None:
+            Client(host='http://localhost:11434')
+        self.client = client
+        self.model = model
+
+    def chat_completion(self, messages, temperature, max_tokens):
+        response = self.client.chat(
+            model=self.model,
+            messages=messages,
+            options = dict(temperature=temperature, num_predict=max_tokens)
+        )
+        # we return the completion string or "" if there is an invalid response/query
+        try:
+            response_content = response.message.content
+        except Exception as e:
+            print(f"Invalid response {response} - exception {e}")
+            response_content = ""
+        if response_content is None:
+            print(f"Invalid response {response} - exception {e}")
+            response_content = ""
+        return response_content
+
+    def __repr__(self) -> str:
+        return f"{self.model}"
+
 
 @dataclass
 class AbstractChatModel:

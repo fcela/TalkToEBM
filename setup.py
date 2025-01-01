@@ -37,5 +37,6 @@ setuptools.setup(
         "tenacity",
         "scipy",
         "interpret",
+        "ollama-python"
     ],
 )
